@@ -3,6 +3,9 @@
 
 This script is intended to be called by the accounting agent to get
 up-to-date information about Georgian tax requirements and deadlines.
+
+Sources: matsne.gov.ge, rs.ge, infohub.rs.ge
+Updated: March 2026
 """
 import argparse
 import json
@@ -32,19 +35,36 @@ def get_current_period() -> dict:
 
 
 def get_tax_rates() -> dict:
-    """Return current Georgian tax rates (2025)."""
+    """Return current Georgian tax rates (2025-2026)."""
     return {
         "income_tax_pct": 20.0,
+        "income_tax_ic_status_pct": 5.0,
+        "income_tax_gita_startup_yr1_3_pct": 0.0,
+        "income_tax_gita_startup_yr4_6_pct": 5.0,
+        "income_tax_gita_startup_yr7_10_pct": 10.0,
         "employee_pension_pct": 2.0,
         "employer_pension_pct": 2.0,
-        "state_pension_pct": 2.0,
+        "state_pension_pct_under_24k": 2.0,
+        "state_pension_pct_24k_to_60k": 1.0,
+        "state_pension_pct_above_60k": 0.0,
         "corporate_profit_tax_pct": 15.0,
+        "corporate_profit_tax_banks_pct": 20.0,
+        "corporate_profit_tax_ic_status_pct": 5.0,
+        "corporate_profit_tax_vzp_export_pct": 0.0,
+        "corporate_profit_tax_online_gambling_pct": 20.0,
         "dividend_withholding_pct": 5.0,
+        "dividend_withholding_ic_nonresident_pct": 0.0,
+        "dividend_from_banks_2023_plus_pct": 0.0,
         "vat_rate_pct": 18.0,
         "vat_threshold_gel": 100_000.0,
-        "late_declaration_penalty_gel": 100.0,
+        "vat_non_registration_penalty_gel": 5_000.0,
+        "late_declaration_penalty_first_gel": 200.0,
+        "late_declaration_penalty_repeat_gel": 400.0,
         "late_payment_daily_pct": 0.05,
-        "source": "Georgian Tax Code (as of 2025)",
+        "tax_understatement_penalty_pct": 50.0,
+        "tax_evasion_penalty_pct": 100.0,
+        "source": "Georgian Tax Code (matsne.gov.ge #1043717, as of March 2026)",
+        "last_amendment": "Law No. 1061-IVМС-XIМП of 12 Nov 2025 (effective 1 Jan 2026)",
     }
 
 
