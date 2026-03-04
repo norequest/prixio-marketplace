@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "prixio-marketplace",
+  "description": "Prixio LLC plugin marketplace for Claude Code — Georgian accounting, tax compliance, and business tools",
+  "owner": {
+    "name": "Prixio LLC",
+    "email": "info@prixio.ge"
+  },
+  "plugins": [
+    {
+      "name": "prixio-accounting",
+      "description": "Georgian accounting & tax compliance for Prixio LLC (Lotify + Courio). Answers questions about rs.ge declarations, revenue service requirements, VAT thresholds, pension contributions, and tax deadlines.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Prixio LLC",
+        "email": "info@prixio.ge"
+      },
+      "source": "./plugins/prixio-accounting",
+      "category": "productivity",
+      "homepage": "https://github.com/norequest/prixio-marketplace"
+    }
+  ]
+}

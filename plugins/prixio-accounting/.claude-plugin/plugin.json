@@ -1,17 +1,8 @@
 {
   "name": "prixio-accounting",
   "description": "Georgian accounting & tax compliance for Prixio LLC (Lotify + Courio). Answers questions about rs.ge declarations, revenue service requirements, VAT thresholds, pension contributions, and tax deadlines.",
-  "version": "1.0.0",
   "author": {
     "name": "Prixio LLC",
     "email": "info@prixio.ge"
-  },
-  "skills": [
-    "skills/georgian-tax-knowledge",
-    "skills/declaration-assistant",
-    "skills/revenue-calculator"
-  ],
-  "agents": [
-    "agents/accounting-agent.md"
-  ]
+  }
 }
