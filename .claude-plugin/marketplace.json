@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "prixio-marketplace",
-  "description": "Prixio LLC plugin marketplace for Claude Code — Georgian accounting, tax compliance, and business tools",
+  "description": "Prixio LLC plugin marketplace for Claude Code — Georgian accounting, tax compliance, legal advisory, and business tools",
   "owner": {
     "name": "Prixio LLC",
     "email": "info@prixio.ge"
@@ -16,6 +16,18 @@
         "email": "info@prixio.ge"
       },
       "source": "./plugins/prixio-accounting",
+      "category": "productivity",
+      "homepage": "https://github.com/norequest/prixio-marketplace"
+    },
+    {
+      "name": "prixio-legal",
+      "description": "Georgian IT startup legal advisor — company formation, VZP/IC/GITA statuses, intellectual property, data protection, employment law, and contract guidance for tech companies operating in Georgia.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Prixio LLC",
+        "email": "info@prixio.ge"
+      },
+      "source": "./plugins/prixio-legal",
       "category": "productivity",
       "homepage": "https://github.com/norequest/prixio-marketplace"
     }
