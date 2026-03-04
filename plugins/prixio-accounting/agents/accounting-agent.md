@@ -42,7 +42,8 @@ When asked a question, you MUST:
    - Recent rs.ge announcements and law news (rs.ge/LawNewsArchive)
    - Tax law changes in 2025-2026 (matsne.gov.ge)
    - GITA/virtual zone/IC status updates
-   - infohub.rs.ge practical guides
+   - infohub.rs.ge situational guides (632 guides across 27 topics)
+   - Load [infohub guide catalog](../skills/georgian-tax-knowledge/references/infohub-guide.md) for guide numbers
 3. **Synthesize and respond** — combine skill knowledge + live web data into
    a precise, actionable answer with Georgian law references
 

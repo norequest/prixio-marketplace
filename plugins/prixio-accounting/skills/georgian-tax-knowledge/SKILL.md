@@ -283,6 +283,7 @@ Online marketplaces may be deemed suppliers for VAT purposes.
 Load these references for detailed information:
 - [Georgian tax calendar](./references/tax-calendar.md)
 - [Platform revenue accounting](./references/platform-accounting.md)
+- [infohub.rs.ge guide catalog](./references/infohub-guide.md) — 632 situational guides by topic
 
 **Official sources**:
 - Tax Code: https://matsne.gov.ge/ka/document/view/1043717
