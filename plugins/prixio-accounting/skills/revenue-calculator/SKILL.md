@@ -73,4 +73,38 @@ COURIO (delivery price P):
   Platform fee = P × 0.15  (min 4 GEL delivery → 0.60 GEL fee)
   Courier payout = P × 0.85
   Instant payout fee = 0.50 GEL additional revenue
+
+SALARY under IC Status (gross G):
+  Income tax     = G × 0.05  (reduced from 20%)
+  Employee pension = G × 0.02
+  Employer pension = G × 0.02
+  Net to employee  = G × 0.93
+  Total employer cost = G × 1.02
+
+SALARY under GITA Startup Years 1-3 (gross G, max 10,000/month):
+  Income tax     = 0  (exempt)
+  Employee pension = G × 0.02
+  Employer pension = G × 0.02
+  Net to employee  = G × 0.98
+  Total employer cost = G × 1.02
+
+DIVIDEND under IC Status (amount D, non-resident shareholder):
+  Corporate profit tax = D × 0.05
+  Dividend withholding = 0
+  Net to founder = D × 0.95
+
+DIVIDEND under VZP (from export income, amount D):
+  Corporate profit tax = 0
+  Dividend withholding = D × 0.05
+  Net to founder = D × 0.95
+
+REVERSE-CHARGE VAT (foreign service cost C in GEL):
+  VAT payable = C × 0.18
+  If VAT-registered: input VAT credit = C × 0.18 → net = 0
+  If NOT VAT-registered: net cost = C × 1.18
+
+PENSION STATE CONTRIBUTION (annual salary A):
+  If A ≤ 24,000 GEL: state = 2% of monthly gross
+  If 24,000 < A ≤ 60,000: state = 1% of monthly gross
+  If A > 60,000: state = 0%
 ```

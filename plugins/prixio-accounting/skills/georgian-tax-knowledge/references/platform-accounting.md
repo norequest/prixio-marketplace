@@ -1,5 +1,8 @@
 # Platform Revenue Accounting — Prixio LLC
 
+> **Sources**: matsne.gov.ge, rs.ge, bookkeeping.ge
+> **Last updated**: March 2026
+
 ## Lotify (Auction Marketplace)
 
 ### Revenue Model
@@ -92,3 +95,49 @@ If instant payout requested:
 For VAT threshold purposes, Prixio revenue = Lotify commissions + Courio platform fees + instant payout fees.
 
 **Escrow funds and courier payouts do NOT count toward the 100,000 GEL VAT threshold.**
+
+---
+
+## Reverse-Charge VAT on Foreign Services
+
+Both Lotify and Courio likely use foreign SaaS tools (hosting, payment processors, analytics).
+
+```
+When Prixio pays for foreign services:
+  Service cost in GEL equivalent → declare 18% reverse-charge VAT
+  If VAT-registered: claim simultaneous input VAT deduction → net 0%
+  If NOT VAT-registered: pay 18% with no recovery
+
+This obligation exists REGARDLESS of VAT registration status.
+Must be declared monthly by the 15th.
+```
+
+---
+
+## Digital Platform VAT Considerations (2026)
+
+Under recent Georgian amendments aligning with international standards:
+- Non-resident digital service providers must register for VAT on B2C services
+- Online marketplaces MAY be deemed suppliers for VAT purposes
+- If Lotify/Courio expand to serve non-resident sellers, additional VAT obligations may apply
+- Monitor rs.ge for platform-specific guidance updates
+
+---
+
+## Special Tax Regime Considerations for Platforms
+
+### If Prixio obtains International Company Status (IC):
+```
+- CIT on distributed profits: 5% (vs 15%)
+- Employee PIT: 5% (vs 20%)
+- Dividend to non-resident: 0%
+- Requirement: ≥98% revenue from qualifying IT activities
+- Lotify/Courio revenue may qualify as IT services
+```
+
+### If Prixio obtains Virtual Zone Person (VZP) Status:
+```
+- CIT on export IT income: 0%
+- Domestic Georgian platform revenue: standard 15% CIT
+- Only useful if expanding internationally
+```
