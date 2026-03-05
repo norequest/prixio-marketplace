@@ -1,0 +1,8 @@
+{
+  "name": "prixio-cost-analyzer",
+  "description": "Monthly cost analysis & burn rate tracking for Prixio LLC (Lotify + Courio). Calculates infrastructure, team, marketing, and operational costs with Georgian tax context. Helps the accountant agent track expenses and plan budgets.",
+  "author": {
+    "name": "Prixio LLC",
+    "email": "info@prixio.ge"
+  }
+}
