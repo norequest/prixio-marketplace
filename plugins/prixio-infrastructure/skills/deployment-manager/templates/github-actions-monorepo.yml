@@ -1,0 +1,303 @@
+# =============================================================================
+# GitHub Actions CI/CD for pnpm + Turborepo monorepo
+# Prixio LLC - Lotify & Courio
+# =============================================================================
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  NODE_VERSION: "22"
+  PNPM_VERSION: "9"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Detect which packages changed
+  # ---------------------------------------------------------------------------
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      lotify-api: ${{ steps.filter.outputs.lotify-api }}
+      lotify-web: ${{ steps.filter.outputs.lotify-web }}
+      lotify-admin: ${{ steps.filter.outputs.lotify-admin }}
+      courio-api: ${{ steps.filter.outputs.courio-api }}
+      courio-admin: ${{ steps.filter.outputs.courio-admin }}
+      packages: ${{ steps.filter.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lotify-api:
+              - 'apps/lotify-api/**'
+              - 'packages/**'
+            lotify-web:
+              - 'apps/lotify-web/**'
+              - 'packages/**'
+            lotify-admin:
+              - 'apps/lotify-admin/**'
+              - 'packages/**'
+            courio-api:
+              - 'apps/courio-api/**'
+              - 'packages/**'
+            courio-admin:
+              - 'apps/courio-admin/**'
+              - 'packages/**'
+            packages:
+              - 'packages/**'
+
+  # ---------------------------------------------------------------------------
+  # Lint
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: changes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm turbo lint
+
+  # ---------------------------------------------------------------------------
+  # Type Check
+  # ---------------------------------------------------------------------------
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    needs: changes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm turbo typecheck
+
+  # ---------------------------------------------------------------------------
+  # Test
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: changes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm turbo test
+
+  # ---------------------------------------------------------------------------
+  # Build
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm turbo build
+
+  # ---------------------------------------------------------------------------
+  # Deploy Lotify Web to Vercel
+  # ---------------------------------------------------------------------------
+  deploy-lotify-web:
+    name: Deploy Lotify Web
+    runs-on: ubuntu-latest
+    needs: [build, changes]
+    if: >
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') &&
+      needs.changes.outputs.lotify-web == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_LOTIFY_WEB_PROJECT_ID }}
+          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
+          working-directory: apps/lotify-web
+
+  # ---------------------------------------------------------------------------
+  # Deploy Lotify Admin to Vercel
+  # ---------------------------------------------------------------------------
+  deploy-lotify-admin:
+    name: Deploy Lotify Admin
+    runs-on: ubuntu-latest
+    needs: [build, changes]
+    if: >
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') &&
+      needs.changes.outputs.lotify-admin == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_LOTIFY_ADMIN_PROJECT_ID }}
+          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
+          working-directory: apps/lotify-admin
+
+  # ---------------------------------------------------------------------------
+  # Deploy Lotify API (Docker build + push)
+  # ---------------------------------------------------------------------------
+  deploy-lotify-api:
+    name: Deploy Lotify API
+    runs-on: ubuntu-latest
+    needs: [build, changes]
+    if: >
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.lotify-api == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.fastify
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/lotify-api:latest
+            ghcr.io/${{ github.repository }}/lotify-api:${{ github.sha }}
+          build-args: APP_NAME=lotify-api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Deploy Courio API (Docker build + push)
+  # ---------------------------------------------------------------------------
+  deploy-courio-api:
+    name: Deploy Courio API
+    runs-on: ubuntu-latest
+    needs: [build, changes]
+    if: >
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.courio-api == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.fastify
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/courio-api:latest
+            ghcr.io/${{ github.repository }}/courio-api:${{ github.sha }}
+          build-args: APP_NAME=courio-api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Deploy Courio Admin to Vercel
+  # ---------------------------------------------------------------------------
+  deploy-courio-admin:
+    name: Deploy Courio Admin
+    runs-on: ubuntu-latest
+    needs: [build, changes]
+    if: >
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') &&
+      needs.changes.outputs.courio-admin == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_COURIO_ADMIN_PROJECT_ID }}
+          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
+          working-directory: apps/courio-admin

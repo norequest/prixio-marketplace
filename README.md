@@ -19,6 +19,9 @@ or browse for the plugin in `/plugin > Discover`
 | Plugin | Description | Category |
 |--------|-------------|----------|
 | [prixio-accounting](./plugins/prixio-accounting) | Georgian accounting & tax compliance (rs.ge, VAT, salary, dividends) | Productivity |
+| [prixio-legal](./plugins/prixio-legal) | Georgian IT startup law, contracts, IP, data protection, employment | Legal |
+| [prixio-cost-analyzer](./plugins/prixio-cost-analyzer) | Monthly cost analysis, burn rate, runway projections | Finance |
+| [prixio-infrastructure](./plugins/prixio-infrastructure) | Virtual DevOps engineer: deployments, migrations, scaling, production readiness | Infrastructure |
 
 ## Plugin Structure
 

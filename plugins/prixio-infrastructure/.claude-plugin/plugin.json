@@ -1,0 +1,8 @@
+{
+  "name": "prixio-infrastructure",
+  "description": "Virtual DevOps engineer for Prixio LLC (Lotify + Courio). Handles infrastructure advising, deployments, hosting migrations, production readiness audits, capacity planning, and cost optimization. Covers Fastify 5, Next.js 15, Supabase, Railway, Vercel, Hetzner, and Georgian-specific hosting considerations.",
+  "author": {
+    "name": "Prixio LLC",
+    "email": "info@prixio.ge"
+  }
+}

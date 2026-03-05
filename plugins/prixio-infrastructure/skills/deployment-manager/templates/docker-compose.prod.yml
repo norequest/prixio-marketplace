@@ -1,0 +1,205 @@
+# =============================================================================
+# Production Docker Compose for self-hosted deployment (Hetzner VPS / Coolify)
+# Usage: docker compose -f docker-compose.prod.yml up -d
+# =============================================================================
+
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Lotify API (Fastify 5)
+  # ---------------------------------------------------------------------------
+  lotify-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastify
+      args:
+        APP_NAME: lotify-api
+    container_name: lotify-api
+    restart: unless-stopped
+    env_file: ./envs/lotify-api.env
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Courio API (Fastify 5)
+  # ---------------------------------------------------------------------------
+  courio-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastify
+      args:
+        APP_NAME: courio-api
+    container_name: courio-api
+    restart: unless-stopped
+    env_file: ./envs/courio-api.env
+    ports:
+      - "3002:3001"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Lotify Web (Next.js 15)
+  # ---------------------------------------------------------------------------
+  lotify-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.nextjs
+      args:
+        APP_NAME: lotify-web
+    container_name: lotify-web
+    restart: unless-stopped
+    env_file: ./envs/lotify-web.env
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ---------------------------------------------------------------------------
+  # Courio Admin (Next.js 15)
+  # ---------------------------------------------------------------------------
+  courio-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.nextjs
+      args:
+        APP_NAME: courio-admin
+    container_name: courio-admin
+    restart: unless-stopped
+    env_file: ./envs/courio-admin.env
+    ports:
+      - "3003:3000"
+    networks:
+      - frontend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ---------------------------------------------------------------------------
+  # Redis (caching, BullMQ queues)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: prixio-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 300M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ---------------------------------------------------------------------------
+  # Caddy (reverse proxy + automatic HTTPS)
+  # ---------------------------------------------------------------------------
+  caddy:
+    image: caddy:2-alpine
+    container_name: prixio-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 32M
+    depends_on:
+      - lotify-api
+      - courio-api
+      - lotify-web
+      - courio-admin
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis-data:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local
